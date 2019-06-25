@@ -1,0 +1,7 @@
+logging:
+  level: INFO
+  loggers:
+    com.lucasmatt: DEBUG
+
+swagger:
+  resourcePackage: com.tes.resources
