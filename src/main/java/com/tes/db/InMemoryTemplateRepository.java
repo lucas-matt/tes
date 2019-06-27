@@ -4,10 +4,8 @@ import com.tes.api.TemplateSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Basic in-memory implemention of a template repository. In reality would be a persistent store.
@@ -18,25 +16,42 @@ public enum InMemoryTemplateRepository implements TemplateRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(InMemoryTemplateRepository.class);
 
-    private Map<UUID, TemplateSpec> db = new HashMap<>();
+    /**
+     * Use of linked hash map for predictable iteration
+     */
+    private Map<UUID, TemplateSpec> db = new LinkedHashMap<>();
 
     /**
      * {@inheritDoc}
-     * @return
      */
     @Override
-    public Optional<TemplateSpec> findById(UUID id) {
-        LOG.debug("Finding template by id {}", id);
-        return Optional.of(db.get(id));
+    public List<TemplateSpec> find(int skip, int limit) {
+        return db.values().stream()
+                .skip(skip)
+                .limit(limit)
+                .collect(Collectors.toList());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void save(TemplateSpec template) {
+    public Optional<TemplateSpec> findById(UUID id) {
+        LOG.debug("Finding template by id {}", id);
+        return Optional.ofNullable(db.get(id));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TemplateSpec save(TemplateSpec template) {
+        if (template.getId() == null) {
+            template.setId(UUID.randomUUID());
+        }
         LOG.debug("Saving template {}", template);
         db.put(template.getId(), template);
+        return template;
     }
 
     /**
@@ -48,10 +63,15 @@ public enum InMemoryTemplateRepository implements TemplateRepository {
         db.remove(id);
     }
 
+    @Override
+    public Integer count() {
+        return db.size();
+    }
+
     /**
      * Drop all members of the in-memory collection
      */
-    void drop() {
+    public void drop() {
         LOG.debug("Truncating template repository -- removing {} items", db.size());
         db.clear();
     }

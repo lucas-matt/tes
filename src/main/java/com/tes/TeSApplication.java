@@ -1,6 +1,7 @@
 package com.tes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tes.db.InMemoryTemplateRepository;
 import com.tes.resources.MessagesResource;
 import com.tes.resources.TemplateResource;
 import io.dropwizard.Application;
@@ -34,7 +35,9 @@ public class TeSApplication extends Application<TeSConfiguration> {
     @Override
     public void run(final TeSConfiguration configuration,
                     final Environment environment) {
-        environment.jersey().register(new TemplateResource());
+        environment.jersey().register(
+                new TemplateResource(InMemoryTemplateRepository.INSTANCE)
+        );
         environment.jersey().register(new MessagesResource());
     }
 
