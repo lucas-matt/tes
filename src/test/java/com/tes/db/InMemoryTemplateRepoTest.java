@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class InMemoryTemplateRepoTest {
 
-    private TemplateRepository repo = InMemoryTemplateRepository.INSTANCE;
+    private Repository<TemplateSpec> repo = InMemoryTemplateRepository.INSTANCE;
 
     @BeforeEach
     public void setup() {

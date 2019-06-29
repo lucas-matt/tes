@@ -1,5 +1,7 @@
 package com.tes.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tes.db.Identifiable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -9,7 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @ApiModel(description = "Message to be sent")
-public class Message {
+public class Message implements Identifiable {
 
     @NotEmpty
     private UUID template;
@@ -19,6 +21,9 @@ public class Message {
 
     @NotNull
     private Channel channel;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Status status;
 
     @ApiModelProperty(value = "Set of templates being returned")
     public UUID getTemplate() {
@@ -46,4 +51,28 @@ public class Message {
     public void setChannel(Channel channel) {
         this.channel = channel;
     }
+
+    @Override
+    public UUID getId() {
+        return null;
+    }
+
+    @Override
+    public void setId(UUID id) {
+
+    }
+
+    /**
+     * Status of message
+     */
+    public enum Status {
+
+        PENDING,
+
+        SENT,
+
+        FAILED
+
+    }
+
 }

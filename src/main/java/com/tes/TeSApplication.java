@@ -1,6 +1,8 @@
 package com.tes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.tes.db.InMemoryMessageRepository;
 import com.tes.db.InMemoryTemplateRepository;
 import com.tes.resources.MessagesResource;
 import com.tes.resources.TemplateResource;
@@ -38,7 +40,9 @@ public class TeSApplication extends Application<TeSConfiguration> {
         environment.jersey().register(
                 new TemplateResource(InMemoryTemplateRepository.INSTANCE)
         );
-        environment.jersey().register(new MessagesResource());
+        environment.jersey().register(
+                new MessagesResource(InMemoryMessageRepository.INSTANCE)
+        );
     }
 
 }

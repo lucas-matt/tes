@@ -1,5 +1,7 @@
 package com.tes.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tes.db.Identifiable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -10,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @ApiModel(description = "TemplateSpec for a message")
-public class TemplateSpec {
+public class TemplateSpec implements Identifiable {
 
     private UUID id;
 

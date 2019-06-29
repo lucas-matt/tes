@@ -2,7 +2,7 @@ package com.tes.resources;
 
 import com.tes.api.TemplateSpec;
 import com.tes.api.TemplateSpecs;
-import com.tes.db.TemplateRepository;
+import com.tes.db.Repository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Api(tags = {"TemplateSpecs"})
+@Api(tags = {"Templates"})
 @Path("/templates")
 @Produces(MediaType.APPLICATION_JSON)
 public class TemplateResource {
@@ -27,9 +27,9 @@ public class TemplateResource {
     @Context
     private UriInfo uriInfo;
 
-    private TemplateRepository repository;
+    private Repository<TemplateSpec> repository;
 
-    public TemplateResource(TemplateRepository repository) {
+    public TemplateResource(Repository repository) {
         this.repository = repository;
     }
 

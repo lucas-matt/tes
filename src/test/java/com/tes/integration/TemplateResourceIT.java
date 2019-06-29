@@ -118,6 +118,7 @@ public class TemplateResourceIT extends BaseIT {
     @Test
     public void shouldFailToUpdateNonExistantTemplate() {
         TemplateSpec spec = buildSampleTemplate();
+        spec.setId(UUID.randomUUID());
         Response response = request("/templates/" + spec.getId()).put(Entity.json(spec));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
