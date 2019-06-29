@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -71,7 +72,7 @@ public class TemplateResource {
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @POST
-    public Response create(TemplateSpec template) {
+    public Response create(@Valid TemplateSpec template) {
         TemplateSpec saved = this.repository.save(template);
         URI uri = uriInfo.getBaseUri().resolve(uriInfo.getPath() + "/" + saved.getId());
         return Response.created(uri).entity(saved).build();
@@ -86,6 +87,9 @@ public class TemplateResource {
     @Path("/{id}")
     @PUT
     public Response update(@PathParam("id") UUID id, TemplateSpec template) {
+        if (!this.repository.exists(id)) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
         return Response.ok().build();
     }
 
@@ -97,6 +101,7 @@ public class TemplateResource {
     @Path("/{id}")
     @DELETE
     public Response delete(@PathParam("id") UUID id) {
+        this.repository.delete(id);
         return Response.ok().build();
     }
 

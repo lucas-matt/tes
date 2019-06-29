@@ -63,9 +63,20 @@ public enum InMemoryTemplateRepository implements TemplateRepository {
         db.remove(id);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Integer count() {
         return db.size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean exists(UUID id) {
+        return db.containsKey(id);
     }
 
     /**

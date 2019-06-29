@@ -17,4 +17,6 @@ public interface TemplateRepository {
     void delete(UUID id);
 
     Integer count();
+
+    boolean exists(UUID id);
 }

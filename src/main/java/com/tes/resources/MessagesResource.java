@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import javax.validation.Valid;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
@@ -21,8 +22,11 @@ public class MessagesResource {
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @POST
-    public void send(Message message) {
-
+    public void send(@Valid Message message) {
+        // get template
+        // assert template
+        // load engine
+        // send
     }
 
 }

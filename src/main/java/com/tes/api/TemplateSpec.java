@@ -2,14 +2,29 @@ package com.tes.api;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @ApiModel(description = "TemplateSpec for a message")
 public class TemplateSpec {
 
     private UUID id;
+
+    @NotNull(message = "Requires a template format")
+    private Format format;
+
+    @NotNull(message = "Must provide a template body")
+    private String body;
+
+    @NotNull(message = "Must be provided, although can be empty")
+    private Set<String> parameters;
+
+    @NotEmpty(message = "Must provide at least one channel for the template")
+    private Set<Channel> channels;
 
     @ApiModelProperty(value = "Identifier for template")
     public UUID getId() {
@@ -18,6 +33,42 @@ public class TemplateSpec {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    @ApiModelProperty(value = "Main template body containing core text of the template")
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    @ApiModelProperty(value = "Set of mandatory parameters required for the template")
+    public Set<String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Set<String> parameters) {
+        this.parameters = parameters;
+    }
+
+    @ApiModelProperty(value = "Set of channels through which template can be delivered")
+    public Set<Channel> getChannels() {
+        return channels;
+    }
+
+    public void setChannels(Set<Channel> channels) {
+        this.channels = channels;
+    }
+
+    @ApiModelProperty(value = "Templating engine to be used")
+    public Format getFormat() {
+        return format;
+    }
+
+    public void setFormat(Format format) {
+        this.format = format;
     }
 
     @Override
