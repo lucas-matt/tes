@@ -1,8 +1,8 @@
 package com.tes.resources;
 
 import com.tes.api.Message;
-import com.tes.api.TemplateSpec;
 import com.tes.db.Repository;
+import com.tes.messages.broker.MessageBroker;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -21,9 +21,12 @@ import java.util.UUID;
 @Path("/messages")
 public class MessagesResource {
 
+    private MessageBroker broker;
+
     private Repository<Message> repository;
 
-    public MessagesResource(Repository<Message> repository) {
+    public MessagesResource(MessageBroker broker, Repository<Message> repository) {
+        this.broker = broker;
         this.repository = repository;
     }
 
@@ -38,6 +41,7 @@ public class MessagesResource {
         // assert template
         // load engine
         // send
+        broker.publish(message);
         return Response.accepted().build();
     }
 
