@@ -1,4 +1,4 @@
-package com.tes.templates;
+package com.tes.core.domain;
 
 import java.util.Map;
 

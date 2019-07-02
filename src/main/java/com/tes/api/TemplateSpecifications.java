@@ -7,20 +7,20 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @ApiModel(description = "Set of templates")
-public class TemplateSpecs {
+public class TemplateSpecifications {
 
     @NotNull
-    private List<TemplateSpec> templates;
+    private List<TemplateSpecification> templates;
 
     @NotNull
     private Integer total;
 
     @ApiModelProperty(value = "Set of templates being returned")
-    public List<TemplateSpec> getTemplates() {
+    public List<TemplateSpecification> getTemplates() {
         return templates;
     }
 
-    public void setTemplates(List<TemplateSpec> templates) {
+    public void setTemplates(List<TemplateSpecification> templates) {
         this.templates = templates;
     }
 

@@ -1,10 +1,10 @@
 package com.tes.db;
 
-import com.tes.api.Message;
+import com.tes.api.SendRequest;
 
-public class InMemoryMessageRepository extends InMemoryRespository<Message> {
+public class InMemoryMessageRepository extends InMemoryRespository<SendRequest> {
 
-    public static InMemoryRespository<Message> INSTANCE = new InMemoryMessageRepository();
+    public static InMemoryRespository<SendRequest> INSTANCE = new InMemoryMessageRepository();
 
     private InMemoryMessageRepository() {
         // singleton

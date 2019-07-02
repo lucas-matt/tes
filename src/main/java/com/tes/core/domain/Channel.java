@@ -1,4 +1,13 @@
 package com.tes.core.domain;
 
-public interface Channel {
+public enum Channel {
+
+    SMS,
+
+    EMAIL,
+
+    PUSH,
+
+    PIDGEON
+
 }

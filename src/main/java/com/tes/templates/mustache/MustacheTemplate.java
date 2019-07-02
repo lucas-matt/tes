@@ -1,7 +1,7 @@
 package com.tes.templates.mustache;
 
 import com.github.mustachejava.Mustache;
-import com.tes.templates.Template;
+import com.tes.core.domain.Template;
 
 import java.io.StringWriter;
 import java.util.Map;

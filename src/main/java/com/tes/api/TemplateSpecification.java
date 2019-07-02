@@ -1,6 +1,7 @@
 package com.tes.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tes.core.domain.Channel;
+import com.tes.core.domain.Format;
 import com.tes.db.Identifiable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @ApiModel(description = "TemplateSpec for a message")
-public class TemplateSpec implements Identifiable {
+public class TemplateSpecification implements Identifiable {
 
     private UUID id;
 
@@ -77,7 +78,7 @@ public class TemplateSpec implements Identifiable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TemplateSpec that = (TemplateSpec) o;
+        TemplateSpecification that = (TemplateSpecification) o;
         return Objects.equals(id, that.id);
     }
 

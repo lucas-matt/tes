@@ -1,9 +1,9 @@
 package com.tes.integration;
 
-import com.tes.api.Channel;
-import com.tes.api.Format;
-import com.tes.api.TemplateSpec;
-import com.tes.api.TemplateSpecs;
+import com.tes.core.domain.Channel;
+import com.tes.core.domain.Format;
+import com.tes.api.TemplateSpecification;
+import com.tes.api.TemplateSpecifications;
 import com.tes.db.InMemoryTemplateRepository;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -29,18 +29,18 @@ public class TemplateResourceIT extends BaseIT {
     public void shouldGetEmptyResponseOnNoTemplates() {
         Response response = request("/templates").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        TemplateSpecs specs = response.readEntity(TemplateSpecs.class);
+        TemplateSpecifications specs = response.readEntity(TemplateSpecifications.class);
         assertThat(specs.getTemplates()).isEmpty();
         assertThat(specs.getTotal()).isEqualTo(0);
     }
 
     @Test
     public void shouldGetAllAvailableTemplatesWithDefaults() {
-        List<TemplateSpec> created = IntStream.range(0, 100)
+        List<TemplateSpecification> created = IntStream.range(0, 100)
                 .mapToObj((i) -> createAndSave())
                 .collect(Collectors.toList());
         Response response = request("/templates").get();
-        TemplateSpecs specs = response.readEntity(TemplateSpecs.class);
+        TemplateSpecifications specs = response.readEntity(TemplateSpecifications.class);
         assertThat(specs.getTemplates().size()).isEqualTo(10);
         assertThat(created).containsAll(specs.getTemplates());
         assertThat(specs.getTotal()).isEqualTo(100);
@@ -48,18 +48,18 @@ public class TemplateResourceIT extends BaseIT {
 
     @Test
     public void shouldGetPaginatedTemplates() {
-        List<TemplateSpec> created = IntStream.range(0, 100)
+        List<TemplateSpecification> created = IntStream.range(0, 100)
                 .mapToObj((i) -> createAndSave())
                 .collect(Collectors.toList());
 
         Response responseOne = request("/templates?page=1&limit=10").get();
-        TemplateSpecs pageOne = responseOne.readEntity(TemplateSpecs.class);
+        TemplateSpecifications pageOne = responseOne.readEntity(TemplateSpecifications.class);
         assertThat(pageOne.getTemplates().size()).isEqualTo(10);
         assertThat(created).containsAll(pageOne.getTemplates());
         assertThat(pageOne.getTotal()).isEqualTo(100);
 
         Response responseTwo = request("/templates?page=2&limit=10").get();
-        TemplateSpecs pageTwo = responseTwo.readEntity(TemplateSpecs.class);
+        TemplateSpecifications pageTwo = responseTwo.readEntity(TemplateSpecifications.class);
         assertThat(pageTwo.getTemplates().size()).isEqualTo(10);
         assertThat(created).containsAll(pageTwo.getTemplates());
         assertThat(pageTwo.getTotal()).isEqualTo(100);
@@ -69,11 +69,11 @@ public class TemplateResourceIT extends BaseIT {
 
     @Test
     public void shouldGetExistingTemplate() {
-        TemplateSpec spec = buildSampleTemplate();
+        TemplateSpecification spec = buildSampleTemplate();
         InMemoryTemplateRepository.INSTANCE.save(spec);
 
         Response response = request("/templates/" + spec.getId()).get();
-        TemplateSpec found = response.readEntity(TemplateSpec.class);
+        TemplateSpecification found = response.readEntity(TemplateSpecification.class);
 
         assertThat(found).isEqualTo(spec);
     }
@@ -86,16 +86,16 @@ public class TemplateResourceIT extends BaseIT {
 
     @Test
     public void shouldCreateNewTemplate() {
-        TemplateSpec spec = buildSampleTemplate();
+        TemplateSpecification spec = buildSampleTemplate();
         Response response = request("/templates").post(Entity.json(spec));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        TemplateSpec body = response.readEntity(TemplateSpec.class);
+        TemplateSpecification body = response.readEntity(TemplateSpecification.class);
         assertThat(body.getId()).isNotNull();
     }
 
     @Test
     public void shouldFailToCreateInvalidTemplate() {
-        TemplateSpec spec = new TemplateSpec();
+        TemplateSpecification spec = new TemplateSpecification();
         Response response = request("/templates").post(Entity.json(spec));
         assertThat(response.getStatus()).isEqualTo(422); // stupid dropwizard default
     }
@@ -103,7 +103,7 @@ public class TemplateResourceIT extends BaseIT {
     @Test
     public void shouldUpdateExistingTemplate() {
         // create
-        TemplateSpec spec = buildSampleTemplate();
+        TemplateSpecification spec = buildSampleTemplate();
         InMemoryTemplateRepository.INSTANCE.save(spec);
 
         // update
@@ -111,13 +111,13 @@ public class TemplateResourceIT extends BaseIT {
         request("/templates/" + spec.getId()).put(Entity.json(spec));
 
         // check
-        Optional<TemplateSpec> found = InMemoryTemplateRepository.INSTANCE.findById(spec.getId());
+        Optional<TemplateSpecification> found = InMemoryTemplateRepository.INSTANCE.findById(spec.getId());
         assertThat(found.get()).isEqualTo(spec);
     }
 
     @Test
     public void shouldFailToUpdateNonExistantTemplate() {
-        TemplateSpec spec = buildSampleTemplate();
+        TemplateSpecification spec = buildSampleTemplate();
         spec.setId(UUID.randomUUID());
         Response response = request("/templates/" + spec.getId()).put(Entity.json(spec));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -125,7 +125,7 @@ public class TemplateResourceIT extends BaseIT {
 
     @Test
     public void shouldDeleteExistingTemplate() {
-        TemplateSpec spec = createAndSave();
+        TemplateSpecification spec = createAndSave();
         Response response = request("/templates/" + spec.getId()).delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(notExists(spec.getId())).isTrue();
@@ -133,7 +133,7 @@ public class TemplateResourceIT extends BaseIT {
 
     @Test
     public void shouldBeIdempotentOnDelete() {
-        TemplateSpec spec = createAndSave();
+        TemplateSpecification spec = createAndSave();
         Response response = request("/templates/" + spec.getId()).delete();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         Response responseTwo = request("/templates/" + spec.getId()).delete();
@@ -146,8 +146,8 @@ public class TemplateResourceIT extends BaseIT {
                 .request();
     }
 
-    private static TemplateSpec buildSampleTemplate() {
-        TemplateSpec spec = new TemplateSpec();
+    private static TemplateSpecification buildSampleTemplate() {
+        TemplateSpecification spec = new TemplateSpecification();
         spec.setBody("");
         spec.setChannels(Set.of(Channel.SMS));
         spec.setFormat(Format.MUSTACHE);

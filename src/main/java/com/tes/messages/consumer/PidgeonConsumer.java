@@ -1,14 +1,17 @@
 package com.tes.messages.consumer;
 
-import com.tes.api.Message;
+import com.tes.api.SendRequest;
+import com.tes.messages.broker.SelectiveConsumer;
 
-import java.util.function.Consumer;
-
-public class PidgeonConsumer implements Consumer<Message> {
+public class PidgeonConsumer implements SelectiveConsumer<SendRequest> {
 
     @Override
-    public void accept(Message message) {
+    public void accept(SendRequest message) {
 
     }
 
+    @Override
+    public boolean test(SendRequest message) {
+        return false;
+    }
 }

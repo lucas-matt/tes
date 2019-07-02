@@ -1,14 +1,14 @@
 package com.tes.utils;
 
-import com.tes.api.TemplateSpec;
+import com.tes.api.TemplateSpecification;
 import com.tes.db.InMemoryTemplateRepository;
 
 import java.util.UUID;
 
 public class DbUtils {
 
-    public static TemplateSpec createAndSave() {
-        TemplateSpec template = new TemplateSpec();
+    public static TemplateSpecification createAndSave() {
+        TemplateSpecification template = new TemplateSpecification();
         template.setId(UUID.randomUUID());
         InMemoryTemplateRepository.INSTANCE.save(template);
         return template;

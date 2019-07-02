@@ -1,7 +1,8 @@
 package com.tes.templates;
 
-import com.tes.api.Format;
-import com.tes.api.TemplateSpec;
+import com.tes.core.domain.Format;
+import com.tes.api.TemplateSpecification;
+import com.tes.core.domain.Template;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -13,7 +14,7 @@ public class MustacheEngineTest {
 
     @Test
     public void shouldCompileAndExecuteTemplate() {
-        TemplateSpec spec = template("Hello {{thing}}!");
+        TemplateSpecification spec = template("Hello {{thing}}!");
 
         Template template = TemplateFactory.compile(spec);
         String result = template.apply(Map.of("thing", "World"));
@@ -21,8 +22,8 @@ public class MustacheEngineTest {
         assertThat(result).isEqualTo("Hello World!");
     }
 
-    private static TemplateSpec template(String body) {
-        TemplateSpec spec = new TemplateSpec();
+    private static TemplateSpecification template(String body) {
+        TemplateSpecification spec = new TemplateSpecification();
         spec.setId(UUID.randomUUID());
         spec.setFormat(Format.MUSTACHE);
         spec.setBody(body);
@@ -31,7 +32,7 @@ public class MustacheEngineTest {
 
     @Test
     public void shouldSupportDeepJsonObjects() {
-        TemplateSpec spec = template("{{person.firstname}} {{person.lastname}} lives @ {{person.address.line1}}, {{person.address.postcode}}");
+        TemplateSpecification spec = template("{{person.firstname}} {{person.lastname}} lives @ {{person.address.line1}}, {{person.address.postcode}}");
         Template template = TemplateFactory.compile(spec);
 
         Map<String, Object> metadata = Map.of(

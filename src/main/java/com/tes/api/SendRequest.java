@@ -1,29 +1,32 @@
 package com.tes.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.tes.core.domain.Channel;
+import com.tes.core.domain.Status;
 import com.tes.db.Identifiable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @ApiModel(description = "Message to be sent")
-public class Message implements Identifiable {
+public class SendRequest implements Identifiable {
 
     @NotEmpty
     private UUID template;
 
     @NotNull
-    private Map<String, String> metadata;
+    private Map<String, Object> metadata;
 
     @NotNull
     private Channel channel;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Status status;
+    private List<AuditLog> log;
 
     @ApiModelProperty(value = "Set of templates being returned")
     public UUID getTemplate() {
@@ -35,11 +38,11 @@ public class Message implements Identifiable {
     }
 
     @ApiModelProperty(value = "Metadata to apply to the template")
-    public Map<String, String> getMetadata() {
+    public Map<String, Object> getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(Map<String, String> metadata) {
+    public void setMetadata(Map<String, Object> metadata) {
         this.metadata = metadata;
     }
 
@@ -62,17 +65,41 @@ public class Message implements Identifiable {
 
     }
 
-    /**
-     * Status of message
-     */
-    public enum Status {
+    public void log(AuditLog auditLog) {
+        this.log.add(auditLog);
+    }
 
-        PENDING,
+    public static class AuditLog {
 
-        SENT,
+        private Channel channel;
 
-        FAILED
+        private Status status;
 
+        private String comment;
+
+        public Channel getChannel() {
+            return channel;
+        }
+
+        public void setChannel(Channel channel) {
+            this.channel = channel;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public void setStatus(Status status) {
+            this.status = status;
+        }
+
+        public String getComment() {
+            return comment;
+        }
+
+        public void setComment(String comment) {
+            this.comment = comment;
+        }
     }
 
 }

@@ -1,7 +1,8 @@
 package com.tes.templates;
 
-import com.tes.api.Format;
-import com.tes.api.TemplateSpec;
+import com.tes.core.domain.Format;
+import com.tes.api.TemplateSpecification;
+import com.tes.core.domain.Template;
 import com.tes.templates.mustache.MustacheEngine;
 
 import java.util.Map;
@@ -12,7 +13,7 @@ public class TemplateFactory {
         Format.MUSTACHE, new MustacheEngine()
     );
 
-    public static Template compile(TemplateSpec spec) {
+    public static Template compile(TemplateSpecification spec) {
         TemplateEngine engine = FACTORY_MAP.get(spec.getFormat());
         return engine.compile(spec);
     }

@@ -1,7 +1,7 @@
 package com.tes.resources;
 
-import com.tes.api.TemplateSpec;
-import com.tes.api.TemplateSpecs;
+import com.tes.api.TemplateSpecification;
+import com.tes.api.TemplateSpecifications;
 import com.tes.db.Repository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,7 +27,7 @@ public class TemplateResource {
     @Context
     private UriInfo uriInfo;
 
-    private Repository<TemplateSpec> repository;
+    private Repository<TemplateSpecification> repository;
 
     public TemplateResource(Repository repository) {
         this.repository = repository;
@@ -41,9 +41,9 @@ public class TemplateResource {
     @GET
     public Response get(@QueryParam("page") @DefaultValue("1") Integer page,
                         @QueryParam("limit") @DefaultValue("10") Integer limit) {
-        List<TemplateSpec> batch = this.repository.find((page - 1) * limit, limit);
+        List<TemplateSpecification> batch = this.repository.find((page - 1) * limit, limit);
         Integer count = this.repository.count();
-        TemplateSpecs specs = new TemplateSpecs();
+        TemplateSpecifications specs = new TemplateSpecifications();
         specs.setTemplates(batch);
         specs.setTotal(count);
         return Response.ok(specs).build();
@@ -51,14 +51,14 @@ public class TemplateResource {
 
     @ApiOperation(value = "Get template by id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok", response = TemplateSpec.class),
+            @ApiResponse(code = 200, message = "Ok", response = TemplateSpecification.class),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @Path("/{id}")
     @GET
     public Response getById(@PathParam("id") UUID id) {
-        Optional<TemplateSpec> template = repository.findById(id);
+        Optional<TemplateSpecification> template = repository.findById(id);
         if (template.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -67,26 +67,26 @@ public class TemplateResource {
 
     @ApiOperation(value = "Create new template")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Created", response = TemplateSpec.class),
+            @ApiResponse(code = 201, message = "Created", response = TemplateSpecification.class),
             @ApiResponse(code = 409, message = "Conflict"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @POST
-    public Response create(@Valid TemplateSpec template) {
-        TemplateSpec saved = this.repository.save(template);
+    public Response create(@Valid TemplateSpecification template) {
+        TemplateSpecification saved = this.repository.save(template);
         URI uri = uriInfo.getBaseUri().resolve(uriInfo.getPath() + "/" + saved.getId());
         return Response.created(uri).entity(saved).build();
     }
 
     @ApiOperation(value = "Update existing template")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok", response = TemplateSpec.class),
+            @ApiResponse(code = 200, message = "Ok", response = TemplateSpecification.class),
             @ApiResponse(code = 404, message = "Not found"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @Path("/{id}")
     @PUT
-    public Response update(@PathParam("id") UUID id, TemplateSpec template) {
+    public Response update(@PathParam("id") UUID id, TemplateSpecification template) {
         if (!this.repository.exists(id)) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -95,7 +95,7 @@ public class TemplateResource {
 
     @ApiOperation(value = "Delete existing template")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Ok", response = TemplateSpec.class),
+            @ApiResponse(code = 200, message = "Ok", response = TemplateSpecification.class),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @Path("/{id}")
