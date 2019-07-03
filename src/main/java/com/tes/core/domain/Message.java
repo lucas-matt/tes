@@ -6,6 +6,11 @@ import java.util.Set;
 
 public class Message {
 
+    public Message(Set<Channel> channelSet, String body) {
+        this.channelSet = channelSet;
+        this.body = body;
+    }
+
     private Set<Channel> channelSet;
 
     private String body;

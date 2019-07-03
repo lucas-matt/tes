@@ -1,11 +1,7 @@
 package com.tes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.tes.db.InMemoryMessageRepository;
 import com.tes.db.InMemoryTemplateRepository;
-import com.tes.messages.broker.SimpleMessageBroker;
-import com.tes.resources.MessagesResource;
 import com.tes.resources.TemplateResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -40,9 +36,6 @@ public class TeSApplication extends Application<TeSConfiguration> {
                     final Environment environment) {
         environment.jersey().register(
                 new TemplateResource(InMemoryTemplateRepository.INSTANCE)
-        );
-        environment.jersey().register(
-                new MessagesResource(SimpleMessageBroker.INSTANCE, InMemoryMessageRepository.INSTANCE)
         );
     }
 

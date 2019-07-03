@@ -3,7 +3,6 @@ package com.tes.messages;
 import com.tes.api.SendRequest;
 import com.tes.api.TemplateSpecification;
 import com.tes.db.Repository;
-import com.tes.messages.broker.MessageBroker;
 import com.tes.core.domain.Template;
 import com.tes.templates.TemplateFactory;
 
@@ -15,8 +14,6 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
     private Repository<TemplateSpecification> templates;
 
     private Repository<SendRequest> messages;
-
-    private MessageBroker broker;
 
     @Override
     public void send(SendRequest message) throws MessageProcessingException {

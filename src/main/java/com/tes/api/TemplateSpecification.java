@@ -26,7 +26,7 @@ public class TemplateSpecification implements Identifiable {
     @NotNull(message = "Must be provided, although can be empty")
     private Set<String> parameters;
 
-    @NotEmpty(message = "Must provide at least one channel for the template")
+    @NotEmpty(message = "Must provide at least one publisher for the template")
     private Set<Channel> channels;
 
     @ApiModelProperty(value = "Identifier for template")
