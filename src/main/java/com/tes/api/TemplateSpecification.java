@@ -23,9 +23,6 @@ public class TemplateSpecification implements Identifiable {
     @NotNull(message = "Must provide a template body")
     private String body;
 
-    @NotNull(message = "Must be provided, although can be empty")
-    private Set<String> parameters;
-
     @NotEmpty(message = "Must provide at least one publisher for the template")
     private Set<Channel> channels;
 
@@ -45,15 +42,6 @@ public class TemplateSpecification implements Identifiable {
 
     public void setBody(String body) {
         this.body = body;
-    }
-
-    @ApiModelProperty(value = "Set of mandatory parameters required for the template")
-    public Set<String> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(Set<String> parameters) {
-        this.parameters = parameters;
     }
 
     @ApiModelProperty(value = "Set of channels through which template can be delivered")

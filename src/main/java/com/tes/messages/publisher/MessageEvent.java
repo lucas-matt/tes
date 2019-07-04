@@ -1,7 +1,7 @@
 package com.tes.messages.publisher;
 
 import akka.actor.ActorRef;
-import com.tes.core.domain.Message;
+import com.tes.messages.Message;
 
 public class MessageEvent {
 
@@ -13,5 +13,4 @@ public class MessageEvent {
         this.message = message;
         this.sender = sender;
     }
-
 }

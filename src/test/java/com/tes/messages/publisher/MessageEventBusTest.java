@@ -1,21 +1,16 @@
 package com.tes.messages.publisher;
 
 import akka.actor.testkit.typed.javadsl.TestInbox;
-import akka.actor.testkit.typed.javadsl.TestKitJunitResource;
-import akka.actor.typed.ActorSystem;
 import com.tes.core.domain.Channel;
-import com.tes.core.domain.Message;
-import org.junit.ClassRule;
+import com.tes.messages.Message;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MessageEventBusTest {
-
-    @ClassRule
-    public static TestKitJunitResource actorSystemResource = new TestKitJunitResource();
-
-    private final ActorSystem system = actorSystemResource.system();
 
     @Test
     public void shouldDeliverOnChannelMatch() {
@@ -23,18 +18,27 @@ public class MessageEventBusTest {
         MessageEventBus bus = new MessageEventBus();
         bus.subscribe(inbox.getRef(), Channel.SMS);
 
-        MessageEvent event = messageFor();
+        MessageEvent event = messageFor(Channel.SMS);
         bus.publish(event);
 
         inbox.expectMessage(event);
     }
 
-    private MessageEvent messageFor(Set<Channel> channels) {
+    @Test
+    public void shouldNotDeliverOnNoMatch() {
+        TestInbox<MessageEvent> inbox = TestInbox.create();
+        MessageEventBus bus = new MessageEventBus();
+        bus.subscribe(inbox.getRef(), Channel.SMS);
+
+        MessageEvent event = messageFor(Channel.EMAIL);
+        bus.publish(event);
+
+        assertThat(inbox.hasMessages()).isFalse();
+    }
+
+    private MessageEvent messageFor(Channel channel) {
         return new MessageEvent(
-                    new Message(
-                            Set.of(Channel.SMS),
-                            ""
-                    ),
+                    new Message(UUID.randomUUID(), channel, Map.of(), ""),
                     null
             );
     }

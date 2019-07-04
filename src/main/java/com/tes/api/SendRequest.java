@@ -1,20 +1,19 @@
 package com.tes.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tes.core.domain.Channel;
-import com.tes.core.domain.Status;
 import com.tes.db.Identifiable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @ApiModel(description = "Message to be sent")
 public class SendRequest implements Identifiable {
+
+    private UUID id;
 
     @NotEmpty
     private UUID template;
@@ -23,10 +22,7 @@ public class SendRequest implements Identifiable {
     private Map<String, Object> metadata;
 
     @NotNull
-    private Channel channel;
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private List<AuditLog> log;
+    private Destination destination;
 
     @ApiModelProperty(value = "Set of templates being returned")
     public UUID getTemplate() {
@@ -46,37 +42,33 @@ public class SendRequest implements Identifiable {
         this.metadata = metadata;
     }
 
-    @ApiModelProperty(value = "Channel along which to send the message")
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
-
     @Override
     public UUID getId() {
-        return null;
+        return id;
     }
 
     @Override
     public void setId(UUID id) {
-
+        this.id = id;
     }
 
-    public void log(AuditLog auditLog) {
-        this.log.add(auditLog);
+    public Destination getDestination() {
+        return destination;
     }
 
-    public static class AuditLog {
+    public void setDestination(Destination destination) {
+        this.destination = destination;
+    }
 
+    public static class Destination {
+
+        @NotNull
         private Channel channel;
 
-        private Status status;
+        @NotNull
+        private Map<String, String> deliveryInfo;
 
-        private String comment;
-
+        @ApiModelProperty(value = "Channel along which to send the message")
         public Channel getChannel() {
             return channel;
         }
@@ -85,20 +77,12 @@ public class SendRequest implements Identifiable {
             this.channel = channel;
         }
 
-        public Status getStatus() {
-            return status;
+        public Map<String, String> getDeliveryInfo() {
+            return deliveryInfo;
         }
 
-        public void setStatus(Status status) {
-            this.status = status;
-        }
-
-        public String getComment() {
-            return comment;
-        }
-
-        public void setComment(String comment) {
-            this.comment = comment;
+        public void setDeliveryInfo(Map<String, String> deliveryInfo) {
+            this.deliveryInfo = deliveryInfo;
         }
     }
 

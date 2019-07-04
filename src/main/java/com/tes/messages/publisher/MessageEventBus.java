@@ -1,14 +1,14 @@
 package com.tes.messages.publisher;
 
 import akka.actor.typed.ActorRef;
-import akka.event.japi.ScanningEventBus;
+import akka.event.japi.LookupEventBus;
 import com.tes.core.domain.Channel;
 
-public class MessageEventBus extends ScanningEventBus<MessageEvent, ActorRef<MessageEvent>, Channel> {
+public class MessageEventBus extends LookupEventBus<MessageEvent, ActorRef<MessageEvent>, Channel> {
 
     @Override
-    public int compareClassifiers(Channel a, Channel b) {
-        return a.compareTo(b);
+    public int mapSize() {
+        return Channel.values().length;
     }
 
     @Override
@@ -17,8 +17,8 @@ public class MessageEventBus extends ScanningEventBus<MessageEvent, ActorRef<Mes
     }
 
     @Override
-    public boolean matches(Channel classifier, MessageEvent event) {
-        return event.message.getChannelSet().contains(classifier);
+    public Channel classify(MessageEvent event) {
+        return event.message.channel;
     }
 
     @Override
