@@ -19,15 +19,54 @@ import java.util.UUID;
 
 public class MessageHandlerServiceImpl implements MessageHandlerService {
 
+    private ActorSystem<MessageEvent> guardian;
+
+    private ActorRef<MessageEventAck> acker;
+
     private Repository<TemplateSpecification> templates;
 
     private Repository<SendRequest> messages;
 
     private MessageEventBus bus = new MessageEventBus();
 
-    public MessageHandlerServiceImpl(Repository<TemplateSpecification> templates, Repository<SendRequest> messages) {
+    private Behavior<MessageEvent> guardian() {
+        return Behaviors.receive(MessageEvent.class)
+                .onMessage(MessageEvent.class,
+                        (ctx, evt) -> {
+                            bus.publish(evt);
+                            return Behavior.same();
+                        }
+                )
+                .build();
+    }
+
+    private Behavior<MessageEventAck> acker() {
+        return Behaviors.receive(MessageEventAck.class)
+                .onMessage(MessageEventAck.class,
+                        (ctx, ack) -> {
+                            Optional<SendRequest> lkp = messages.findById(ack.event.message.id);
+                            lkp.ifPresent((req) -> {
+                                // set status
+                            });
+                            return Behavior.same();
+                        }
+                )
+                .build();
+    }
+
+    public static MessageHandlerService create(Repository<TemplateSpecification> templates, Repository<SendRequest> messages) {
+        MessageHandlerServiceImpl messageService = new MessageHandlerServiceImpl(templates, messages);
+        messageService.init();
+        return messageService;
+    }
+
+    private MessageHandlerServiceImpl(Repository<TemplateSpecification> templates, Repository<SendRequest> messages) {
         this.templates = templates;
         this.messages = messages;
+    }
+
+    private void init() {
+        guardian = ActorSystem.create(guardian(), "message-service");
     }
 
     @Override

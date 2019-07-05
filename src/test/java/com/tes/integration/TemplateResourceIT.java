@@ -151,7 +151,6 @@ public class TemplateResourceIT extends BaseIT {
         spec.setBody("");
         spec.setChannels(Set.of(Channel.SMS));
         spec.setFormat(Format.MUSTACHE);
-        spec.setParameters(Set.of());
         return spec;
     }
 

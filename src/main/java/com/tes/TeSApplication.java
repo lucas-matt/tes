@@ -1,7 +1,11 @@
 package com.tes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.tes.db.InMemoryMessageRepository;
 import com.tes.db.InMemoryTemplateRepository;
+import com.tes.messages.MessageHandlerService;
+import com.tes.messages.MessageHandlerServiceImpl;
+import com.tes.resources.MessagesResource;
 import com.tes.resources.TemplateResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -36,6 +40,10 @@ public class TeSApplication extends Application<TeSConfiguration> {
                     final Environment environment) {
         environment.jersey().register(
                 new TemplateResource(InMemoryTemplateRepository.INSTANCE)
+        );
+        MessageHandlerService messageHandler = MessageHandlerServiceImpl.create(InMemoryTemplateRepository.INSTANCE, InMemoryMessageRepository.INSTANCE);
+        environment.jersey().register(
+                new MessagesResource(messageHandler)
         );
     }
 

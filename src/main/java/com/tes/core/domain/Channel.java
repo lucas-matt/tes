@@ -1,13 +1,20 @@
 package com.tes.core.domain;
 
+import java.util.Set;
+
 public enum Channel {
 
-    SMS,
+    SMS("mobile"),
 
-    EMAIL,
+    EMAIL("email"),
 
-    PUSH,
+    PUSH(),
 
-    PIDGEON
+    PIDGEON("latitude", "longitude");
 
+    private Set<String> requiredPropertySet;
+
+    Channel(String... requiredPropertySet) {
+        this.requiredPropertySet = Set.of(requiredPropertySet);
+    }
 }
