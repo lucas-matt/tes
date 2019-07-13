@@ -141,17 +141,4 @@ public class TemplateResourceIT extends BaseIT {
         notExists(spec.getId());
     }
 
-    private static Invocation.Builder request(String path) {
-        return CLIENT.target(String.format("http://localhost:%s%s", PORT, path))
-                .request();
-    }
-
-    private static TemplateSpecification buildSampleTemplate() {
-        TemplateSpecification spec = new TemplateSpecification();
-        spec.setBody("");
-        spec.setChannels(Set.of(Channel.SMS));
-        spec.setFormat(Format.MUSTACHE);
-        return spec;
-    }
-
 }

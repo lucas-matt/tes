@@ -9,27 +9,29 @@ import java.util.List;
 @ApiModel(description = "Set of templates")
 public class TemplateSpecifications {
 
+    @ApiModelProperty(value = "Set of templates being returned")
     @NotNull
     private List<TemplateSpecification> templates;
 
+    @ApiModelProperty(value = "Number of templates available")
     @NotNull
     private Integer total;
 
-    @ApiModelProperty(value = "Set of templates being returned")
     public List<TemplateSpecification> getTemplates() {
         return templates;
     }
 
-    public void setTemplates(List<TemplateSpecification> templates) {
-        this.templates = templates;
-    }
-
-    @ApiModelProperty(value = "Number of templates available")
     public Integer getTotal() {
         return total;
     }
 
-    public void setTotal(Integer total) {
+    public TemplateSpecifications(List<TemplateSpecification> specs, int total) {
+        this.templates = specs;
         this.total = total;
     }
+
+    public TemplateSpecifications() {
+        // deserialization
+    }
+
 }

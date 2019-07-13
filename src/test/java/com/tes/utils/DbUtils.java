@@ -8,8 +8,9 @@ import java.util.UUID;
 public class DbUtils {
 
     public static TemplateSpecification createAndSave() {
-        TemplateSpecification template = new TemplateSpecification();
-        template.setId(UUID.randomUUID());
+        TemplateSpecification template = TemplateSpecification.builder()
+                .id()
+                .build();
         InMemoryTemplateRepository.INSTANCE.save(template);
         return template;
     }

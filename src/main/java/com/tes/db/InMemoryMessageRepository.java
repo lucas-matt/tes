@@ -10,4 +10,8 @@ public class InMemoryMessageRepository extends InMemoryRespository<SendRequest> 
         // singleton
     }
 
+    @Override
+    protected Class<SendRequest> type() {
+        return SendRequest.class;
+    }
 }

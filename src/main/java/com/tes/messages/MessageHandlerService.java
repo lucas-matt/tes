@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface MessageHandlerService {
 
-    void send(SendRequest message) throws MessageProcessingException;
+    SendRequest send(SendRequest message) throws MessageProcessingException, TemplateNotFoundException;
 
     Optional<SendRequest> get(UUID id);
 

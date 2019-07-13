@@ -1,5 +1,6 @@
 package com.tes.resources;
 
+import com.tes.api.ErrorResponse;
 import com.tes.api.TemplateSpecification;
 import com.tes.api.TemplateSpecifications;
 import com.tes.db.Repository;
@@ -8,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @Api(tags = {"Templates"})
 @Path("/templates")
 @Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class TemplateResource {
 
     @Context
@@ -43,9 +46,7 @@ public class TemplateResource {
                         @QueryParam("limit") @DefaultValue("10") Integer limit) {
         List<TemplateSpecification> batch = this.repository.find((page - 1) * limit, limit);
         Integer count = this.repository.count();
-        TemplateSpecifications specs = new TemplateSpecifications();
-        specs.setTemplates(batch);
-        specs.setTotal(count);
+        TemplateSpecifications specs = new TemplateSpecifications(batch, count);
         return Response.ok(specs).build();
     }
 
@@ -60,7 +61,11 @@ public class TemplateResource {
     public Response getById(@PathParam("id") UUID id) {
         Optional<TemplateSpecification> template = repository.findById(id);
         if (template.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorResponse(String.format(
+                            "Template %s not found", id
+                    )))
+                    .build();
         }
         return Response.ok(template.get()).build();
     }
@@ -88,7 +93,11 @@ public class TemplateResource {
     @PUT
     public Response update(@PathParam("id") UUID id, TemplateSpecification template) {
         if (!this.repository.exists(id)) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorResponse(String.format(
+                            "Template %s not found", id
+                    )))
+                    .build();
         }
         return Response.ok().build();
     }

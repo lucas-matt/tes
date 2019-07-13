@@ -12,21 +12,24 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@ApiModel(description = "TemplateSpec for a message")
+@ApiModel(description = "Template specification for a message")
 public class TemplateSpecification implements Identifiable {
 
+    @ApiModelProperty(access = "READ_ONLY", value = "Identifier for send request")
     private UUID id;
 
+    @ApiModelProperty(value = "Template engine to use")
     @NotNull(message = "Requires a template format")
     private Format format;
 
+    @ApiModelProperty(value = "Template body")
     @NotNull(message = "Must provide a template body")
     private String body;
 
+    @ApiModelProperty(value = "Set of channels allowed to be used for this template")
     @NotEmpty(message = "Must provide at least one publisher for the template")
     private Set<Channel> channels;
 
-    @ApiModelProperty(value = "Identifier for template")
     public UUID getId() {
         return id;
     }
@@ -35,7 +38,6 @@ public class TemplateSpecification implements Identifiable {
         this.id = id;
     }
 
-    @ApiModelProperty(value = "Main template body containing core text of the template")
     public String getBody() {
         return body;
     }
@@ -44,7 +46,6 @@ public class TemplateSpecification implements Identifiable {
         this.body = body;
     }
 
-    @ApiModelProperty(value = "Set of channels through which template can be delivered")
     public Set<Channel> getChannels() {
         return channels;
     }
@@ -53,7 +54,6 @@ public class TemplateSpecification implements Identifiable {
         this.channels = channels;
     }
 
-    @ApiModelProperty(value = "Templating engine to be used")
     public Format getFormat() {
         return format;
     }
@@ -78,6 +78,49 @@ public class TemplateSpecification implements Identifiable {
     @Override
     public String toString() {
         return "TemplateSpec{" + "id=" + id + '}';
+    }
+
+    public static class Builder {
+
+        private TemplateSpecification spec;
+
+        private Builder() {
+            spec = new TemplateSpecification();
+        }
+
+        public Builder id(UUID id) {
+            spec.setId(id);
+            return this;
+        }
+
+        public Builder id() {
+            spec.setId(UUID.randomUUID());
+            return this;
+        }
+
+        public Builder format(Format fmt) {
+            spec.setFormat(fmt);
+            return this;
+        }
+
+        public Builder body(String body) {
+            spec.setBody(body);
+            return this;
+        }
+
+        public Builder channels(Channel... channels) {
+            spec.setChannels(Set.of(channels));
+            return this;
+        }
+
+        public TemplateSpecification build() {
+            return spec;
+        }
+
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
 }

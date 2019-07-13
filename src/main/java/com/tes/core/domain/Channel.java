@@ -17,4 +17,9 @@ public enum Channel {
     Channel(String... requiredPropertySet) {
         this.requiredPropertySet = Set.of(requiredPropertySet);
     }
+
+    public boolean deliveryKeysOk(Set<String> keys) {
+        return keys.containsAll(requiredPropertySet);
+    }
+
 }

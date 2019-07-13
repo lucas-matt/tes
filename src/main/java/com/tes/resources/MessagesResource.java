@@ -1,25 +1,32 @@
 package com.tes.resources;
 
+import com.tes.api.ErrorResponse;
 import com.tes.api.SendRequest;
 import com.tes.messages.MessageHandlerService;
 import com.tes.messages.MessageProcessingException;
+import com.tes.messages.TemplateNotFoundException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
 import javax.validation.Valid;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
 import java.util.UUID;
 
 @Api(tags = {"Messages"})
 @Path("/messages")
+@Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class MessagesResource {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MessagesResource.class);
 
     private MessageHandlerService handler;
 
@@ -34,13 +41,24 @@ public class MessagesResource {
     })
     @POST
     public Response send(@Valid SendRequest message) {
+        Response resp;
         try {
-            handler.send(message);
+            SendRequest sent = handler.send(message);
+            resp = Response.accepted().entity(sent).build();
         } catch (MessageProcessingException e) {
-            // TODO - return better message
-            return Response.serverError().build();
+            String msg = e.getMessage();
+            LOG.error(msg);
+            resp = Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorResponse(msg))
+                    .build();
+        } catch (TemplateNotFoundException e) {
+            String msg = e.getMessage();
+            LOG.error(msg);
+            resp = Response.status(Response.Status.NOT_FOUND)
+                    .entity(msg)
+                    .build();
         }
-        return Response.accepted().build();
+        return resp;
     }
 
     @ApiOperation(value = "Get status of sent message")
@@ -53,7 +71,11 @@ public class MessagesResource {
     public Response getById(@PathParam("id") UUID id) {
         Optional<SendRequest> message = handler.get(id);
         if (message.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            var msg = String.format("Message with id %s not found", id);
+            LOG.error(msg);
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(new ErrorResponse(msg))
+                    .build();
         }
         return Response.ok(message.get()).build();
     }

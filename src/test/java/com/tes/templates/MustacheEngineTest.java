@@ -1,12 +1,11 @@
 package com.tes.templates;
 
-import com.tes.core.domain.Format;
 import com.tes.api.TemplateSpecification;
+import com.tes.core.domain.Format;
 import com.tes.core.domain.Template;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,11 +22,11 @@ public class MustacheEngineTest {
     }
 
     private static TemplateSpecification template(String body) {
-        TemplateSpecification spec = new TemplateSpecification();
-        spec.setId(UUID.randomUUID());
-        spec.setFormat(Format.MUSTACHE);
-        spec.setBody(body);
-        return spec;
+        return TemplateSpecification.builder()
+                .id()
+                .format(Format.MUSTACHE)
+                .body(body)
+                .build();
     }
 
     @Test

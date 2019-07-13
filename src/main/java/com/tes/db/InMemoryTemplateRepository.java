@@ -13,4 +13,8 @@ public class InMemoryTemplateRepository extends InMemoryRespository<TemplateSpec
         // singleton
     }
 
+    @Override
+    protected Class<TemplateSpecification> type() {
+        return TemplateSpecification.class;
+    }
 }

@@ -1,5 +1,6 @@
 package com.tes.messages;
 
+import com.tes.api.SendRequest;
 import com.tes.core.domain.Channel;
 
 import java.util.Map;
@@ -20,6 +21,15 @@ public class Message {
         this.channel = channel;
         this.deliveryInfo = deliveryInfo;
         this.body = body;
+    }
+
+    public static Message from(SendRequest req, String body) {
+        return new Message(
+                req.getId(),
+                req.getDestination().getChannel(),
+                req.getDestination().getDeliveryInfo(),
+                body
+        );
     }
 
 }
