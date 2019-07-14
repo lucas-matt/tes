@@ -20,6 +20,9 @@ import javax.ws.rs.core.Response;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * REST resource for message interactions
+ */
 @Api(tags = {"Messages"})
 @Path("/messages")
 @Produces(MediaType.APPLICATION_JSON)
@@ -46,17 +49,9 @@ public class MessagesResource {
             SendRequest sent = handler.send(message);
             resp = Response.accepted().entity(sent).build();
         } catch (MessageProcessingException e) {
-            String msg = e.getMessage();
-            LOG.error(msg);
-            resp = Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorResponse(msg))
-                    .build();
+            resp = failureResponse(Response.Status.BAD_REQUEST, e.getMessage());
         } catch (TemplateNotFoundException e) {
-            String msg = e.getMessage();
-            LOG.error(msg);
-            resp = Response.status(Response.Status.NOT_FOUND)
-                    .entity(msg)
-                    .build();
+            resp = failureResponse(Response.Status.NOT_FOUND, e.getMessage());
         }
         return resp;
     }
@@ -72,12 +67,17 @@ public class MessagesResource {
         Optional<SendRequest> message = handler.get(id);
         if (message.isEmpty()) {
             var msg = String.format("Message with id %s not found", id);
-            LOG.error(msg);
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(new ErrorResponse(msg))
-                    .build();
+            return failureResponse(Response.Status.NOT_FOUND, msg);
         }
         return Response.ok(message.get()).build();
+    }
+
+
+    private static Response failureResponse(Response.Status status, String msg) {
+        LOG.error(msg);
+        return Response.status(status)
+                .entity(new ErrorResponse(msg))
+                .build();
     }
 
 }

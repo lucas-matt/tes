@@ -1,7 +1,7 @@
 logging:
   level: INFO
   loggers:
-    com.lucasmatt: DEBUG
+    com.tes: INFO
 
 swagger:
   resourcePackage: com.tes.resources
@@ -9,4 +9,4 @@ swagger:
 server:
   applicationConnectors:
     - type: http
-      port: 9000
+      port: 8080

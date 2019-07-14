@@ -1,12 +1,20 @@
-package com.tes.messages.publisher;
+package com.tes.messages.akka.publisher;
 
 import akka.actor.typed.ActorRef;
-import com.tes.messages.Message;
 
+/**
+ * Immutable akka event for a message send event
+ */
 public class MessageEvent {
 
+    /**
+     * The message being sent
+     */
     public final Message message;
 
+    /**
+     * The actor to which to reply
+     */
     public final ActorRef<MessageEventAck> sender;
 
     public MessageEvent(Message message, ActorRef<MessageEventAck> sender) {

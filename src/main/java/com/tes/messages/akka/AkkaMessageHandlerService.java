@@ -1,4 +1,4 @@
-package com.tes.messages;
+package com.tes.messages.akka;
 
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
@@ -11,13 +11,17 @@ import com.tes.core.domain.Channel;
 import com.tes.core.domain.Status;
 import com.tes.core.domain.Template;
 import com.tes.db.Repository;
-import com.tes.messages.actors.EmailActor;
-import com.tes.messages.actors.PidgeonActor;
-import com.tes.messages.actors.PushActor;
-import com.tes.messages.actors.SMSActor;
-import com.tes.messages.publisher.MessageEvent;
-import com.tes.messages.publisher.MessageEventAck;
-import com.tes.messages.publisher.MessageEventBus;
+import com.tes.messages.MessageHandlerService;
+import com.tes.messages.MessageProcessingException;
+import com.tes.messages.TemplateNotFoundException;
+import com.tes.messages.akka.workers.EmailActor;
+import com.tes.messages.akka.workers.PidgeonActor;
+import com.tes.messages.akka.workers.PushActor;
+import com.tes.messages.akka.workers.SMSActor;
+import com.tes.messages.akka.publisher.Message;
+import com.tes.messages.akka.publisher.MessageEvent;
+import com.tes.messages.akka.publisher.MessageEventAck;
+import com.tes.messages.akka.publisher.MessageEventBus;
 import com.tes.templates.TemplateFactory;
 
 import java.util.Map;
@@ -25,7 +29,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public class MessageHandlerServiceImpl implements MessageHandlerService {
+/**
+ * Asynchronous implementation of message handler service.
+ *
+ * <h2>Why Akka?</h2>
+ *
+ * Represented as an asynchronous service, because in reality we'd likely want to decouple the request to
+ * send an event, and the actual work done to send an event. For example, having a limited resource - such as
+ * a pool of carrier pidgeons - would likely mean messages backing up until a resource was freed to send the message.
+ *
+ * In a real scenario we'd probably be looking at using queuing middleware such as RabbitMQ or SQS, but in this
+ * implementation Akka provides a convenient and lightweight model that decouples in a similar way.
+ *
+ */
+public class AkkaMessageHandlerService implements MessageHandlerService {
 
     private ActorSystem<MessageEvent> system;
 
@@ -39,6 +56,13 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
 
     private MessageEventBus bus = new MessageEventBus();
 
+    /**
+     * Factory for top level guardian actor.
+     *
+     * In the setup here, we spawn and associate all worker actors that will be supervised by the guardian
+     *
+     * @return guardian behavior
+     */
     Behavior<MessageEvent> guardian() {
         return Behaviors
                 .setup(ctx -> {
@@ -50,15 +74,19 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
                         Channel.SMS, new SMSActor(ctx)
                     );
 
+                    // spawn child actor to receive acknowledgement messages
                     acker = ctx.spawn(acker(), "acker");
 
+                    // spawn each worker and assign to the appropriate channel
                     channels.forEach((chan, behavior) -> {
                         ActorRef<MessageEvent> actor = ctx.spawn(behavior, chan.name());
                         bus.subscribe(actor, chan);
                     });
 
+                    // send message along event bus
                     return Behaviors.receiveMessage(
                         msg -> {
+                            ctx.getLog().debug("Publishing message {}", msg);
                             bus.publish(msg);
                             return Behaviors.same();
                         }
@@ -67,6 +95,13 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
                 });
     }
 
+    /**
+     *
+     * Factory for "acker" (pun-intended). This actor handles the async acknowledgement messages and updates
+     * state appropriately
+     *
+     * @return response handler behavior
+     */
     Behavior<MessageEventAck> acker() {
         return Behaviors.receive(MessageEventAck.class)
                 .onMessage(MessageEventAck.class,
@@ -85,22 +120,34 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
                 .build();
     }
 
-    public static MessageHandlerServiceImpl create(Repository<TemplateSpecification> templates, Repository<SendRequest> messages) {
-        MessageHandlerServiceImpl messageService = new MessageHandlerServiceImpl(templates, messages);
+    /**
+     * Static factory method for this service
+     * @param templates - template repository
+     * @param messages - message repository
+     * @return
+     */
+    public static AkkaMessageHandlerService create(Repository<TemplateSpecification> templates, Repository<SendRequest> messages) {
+        AkkaMessageHandlerService messageService = new AkkaMessageHandlerService(templates, messages);
         messageService.init();
         return messageService;
     }
 
-    MessageHandlerServiceImpl(Repository<TemplateSpecification> templates, Repository<SendRequest> messages) {
+    AkkaMessageHandlerService(Repository<TemplateSpecification> templates, Repository<SendRequest> messages) {
         this.templates = templates;
         this.messages = messages;
     }
 
+    /**
+     * Initializes actor system
+     */
     private void init() {
         system = ActorSystem.create(guardian(), "message-service");
         guardian = system;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SendRequest send(SendRequest message) throws MessageProcessingException, TemplateNotFoundException {
         message.setId(UUID.randomUUID());
@@ -111,6 +158,31 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
         MessageEvent evt = buildMessage(message, spec);
         guardian.tell(evt);
         return message;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<SendRequest> get(UUID id) {
+        return messages.findById(id);
+    }
+
+    public void subscribe(ActorRef<MessageEvent> actorRef, Channel channel) {
+        this.bus.subscribe(actorRef, channel);
+    }
+
+    void setGuardian(ActorRef<MessageEvent> guardian) {
+        this.guardian = guardian;
+    }
+
+    void setAcker(ActorRef<MessageEventAck> acker) {
+        this.acker = acker;
+    }
+
+    public ActorSystem<MessageEvent> getSystem() {
+        return system;
     }
 
     private MessageEvent buildMessage(SendRequest message, TemplateSpecification spec) {
@@ -155,24 +227,4 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
         return template.get();
     }
 
-    @Override
-    public Optional<SendRequest> get(UUID id) {
-        return messages.findById(id);
-    }
-
-    public void subscribe(ActorRef<MessageEvent> actorRef, Channel channel) {
-        this.bus.subscribe(actorRef, channel);
-    }
-
-    void setGuardian(ActorRef<MessageEvent> guardian) {
-        this.guardian = guardian;
-    }
-
-    void setAcker(ActorRef<MessageEventAck> acker) {
-        this.acker = acker;
-    }
-
-    public ActorSystem<MessageEvent> getSystem() {
-        return system;
-    }
 }

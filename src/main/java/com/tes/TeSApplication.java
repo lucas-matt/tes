@@ -1,13 +1,10 @@
 package com.tes;
 
-import akka.actor.typed.ActorSystem;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.tes.db.InMemoryMessageRepository;
 import com.tes.db.InMemoryTemplateRepository;
 import com.tes.health.AkkaHealthCheck;
-import com.tes.messages.MessageHandlerService;
-import com.tes.messages.MessageHandlerServiceImpl;
-import com.tes.messages.publisher.MessageEvent;
+import com.tes.messages.akka.AkkaMessageHandlerService;
 import com.tes.resources.MessagesResource;
 import com.tes.resources.TemplateResource;
 import io.dropwizard.Application;
@@ -16,9 +13,10 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
+/**
+ * Entrypoint for dropwizard application
+ */
 public class TeSApplication extends Application<TeSConfiguration> {
-
-    private ActorSystem<MessageEvent> system;
 
     public static void main(final String[] args) throws Exception {
         new TeSApplication().run(args);
@@ -43,11 +41,12 @@ public class TeSApplication extends Application<TeSConfiguration> {
     @Override
     public void run(final TeSConfiguration configuration,
                     final Environment environment) {
+
         environment.jersey().register(
                 new TemplateResource(InMemoryTemplateRepository.INSTANCE)
         );
 
-        MessageHandlerServiceImpl messageHandler = MessageHandlerServiceImpl.create(InMemoryTemplateRepository.INSTANCE, InMemoryMessageRepository.INSTANCE);
+        AkkaMessageHandlerService messageHandler = AkkaMessageHandlerService.create(InMemoryTemplateRepository.INSTANCE, InMemoryMessageRepository.INSTANCE);
         environment.jersey().register(
                 new MessagesResource(messageHandler)
         );

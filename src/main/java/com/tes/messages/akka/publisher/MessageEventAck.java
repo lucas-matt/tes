@@ -1,11 +1,15 @@
-package com.tes.messages.publisher;
-
-import com.tes.messages.Message;
+package com.tes.messages.akka.publisher;
 
 import java.util.Objects;
 
+/**
+ * Immutable akka ACK event - represents a notification for message send completion
+ */
 public class MessageEventAck {
 
+    /**
+     * Whether the message was sent (acknowledged) or failed (not acknowledged)
+     */
     public enum Status {
         ACK,
         NACK

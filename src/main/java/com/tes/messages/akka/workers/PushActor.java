@@ -1,13 +1,18 @@
-package com.tes.messages.actors;
+package com.tes.messages.akka.workers;
 
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Receive;
 import akka.actor.typed.javadsl.ReceiveBuilder;
-import com.tes.messages.Message;
-import com.tes.messages.publisher.MessageEvent;
-import com.tes.messages.publisher.MessageEventAck;
+import com.tes.messages.akka.publisher.Message;
+import com.tes.messages.akka.publisher.MessageEvent;
+import com.tes.messages.akka.publisher.MessageEventAck;
 
+/**
+ * Stub actor that deals with push message processing
+ *
+ * Simulation behaviour - push service is down so all incoming messages fail
+ */
 public class PushActor extends AbstractBehavior<MessageEvent> {
 
     private final ActorContext<MessageEvent> ctx;

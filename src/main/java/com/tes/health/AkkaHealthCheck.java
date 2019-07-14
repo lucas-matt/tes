@@ -5,7 +5,7 @@ import com.codahale.metrics.health.HealthCheck;
 
 /**
  * Stub while we have no real external dependencies or internal systems
- * of which to check the health
+ * of which to check the health - just ensure Akka system is up and running
  */
 public class AkkaHealthCheck extends HealthCheck {
 

@@ -3,7 +3,7 @@ package com.tes.db;
 import com.tes.api.TemplateSpecification;
 
 /**
- * Basic in-memory implemention of a template repository. In reality would be a persistent store.
+ * Basic in-memory implementation of a template repository. In reality would be a persistent store.
  */
 public class InMemoryTemplateRepository extends InMemoryRespository<TemplateSpecification> {
 

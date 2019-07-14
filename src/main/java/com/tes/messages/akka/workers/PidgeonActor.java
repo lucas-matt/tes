@@ -1,19 +1,27 @@
-package com.tes.messages.actors;
+package com.tes.messages.akka.workers;
 
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Receive;
 import akka.actor.typed.javadsl.ReceiveBuilder;
-import com.tes.messages.Message;
-import com.tes.messages.publisher.MessageEvent;
-import com.tes.messages.publisher.MessageEventAck;
+import com.tes.messages.akka.publisher.Message;
+import com.tes.messages.akka.publisher.MessageEvent;
+import com.tes.messages.akka.publisher.MessageEventAck;
 
 import java.util.function.Supplier;
 
+/**
+ * Stub actor that deals with pidgeon message processing
+ *
+ * Simulation behaviour - will fail 50% of the time to simulate a shortage of available pidgeons
+ */
 public class PidgeonActor extends AbstractBehavior<MessageEvent> {
 
     private final ActorContext<MessageEvent> ctx;
 
+    /**
+     * Randomizer as to whether pidgeon will pickup message
+     */
     private final Supplier<Boolean> flip;
 
     public PidgeonActor(ActorContext<MessageEvent> ctx) {

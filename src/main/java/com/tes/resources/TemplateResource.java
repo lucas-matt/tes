@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * REST resource for template interactions
+ */
 @Api(tags = {"Templates"})
 @Path("/templates")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,7 +35,7 @@ public class TemplateResource {
 
     private Repository<TemplateSpecification> repository;
 
-    public TemplateResource(Repository repository) {
+    public TemplateResource(Repository<TemplateSpecification> repository) {
         this.repository = repository;
     }
 
@@ -99,6 +102,8 @@ public class TemplateResource {
                     )))
                     .build();
         }
+        template.setId(id);
+        this.repository.save(template);
         return Response.ok().build();
     }
 

@@ -1,8 +1,7 @@
-package com.tes.messages.publisher;
+package com.tes.messages.akka.publisher;
 
 import akka.actor.testkit.typed.javadsl.TestInbox;
 import com.tes.core.domain.Channel;
-import com.tes.messages.Message;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;

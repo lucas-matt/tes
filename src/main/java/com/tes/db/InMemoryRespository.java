@@ -9,12 +9,19 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * Genericized implementation of a basic in-memory repository
+ * @param <T> - the identifiable entity supported by the repository
+ */
 public abstract class InMemoryRespository<T extends Identifiable> implements Repository<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InMemoryTemplateRepository.class);
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    /**
+     * Subscribed to be notified on certain triggers
+     */
     private List<Consumer<Command>> subscribers = new ArrayList<>();
 
     /**
@@ -22,6 +29,9 @@ public abstract class InMemoryRespository<T extends Identifiable> implements Rep
      */
     private Map<UUID, T> db = new LinkedHashMap<>();
 
+    /**
+     * @return class of core entity
+     */
     protected abstract Class<T> type();
 
     /**
@@ -29,6 +39,7 @@ public abstract class InMemoryRespository<T extends Identifiable> implements Rep
      */
     @Override
     public List<T> find(int skip, int limit) {
+        LOG.debug("Find with skip {} and limit {}", skip, limit);
         return db.values().stream()
                 .skip(skip)
                 .limit(limit)
@@ -93,15 +104,23 @@ public abstract class InMemoryRespository<T extends Identifiable> implements Rep
         db.clear();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void trigger(Consumer<Command> subscriber) {
         this.subscribers.add(subscriber);
     }
 
     private void emit(CommandType type, UUID id) {
         Command cmd = new Command(type, id);
+        LOG.debug("Emitting command {} for {} subscribers", cmd, subscribers.size());
         subscribers.forEach(sub -> sub.accept(cmd));
     }
 
+    /**
+     * Save a new copy of the request to avoid mutability issues
+     */
     private T clone(T orig, Class<T> type) {
         try {
             return MAPPER.readValue(MAPPER.writeValueAsString(orig), type);
@@ -111,7 +130,7 @@ public abstract class InMemoryRespository<T extends Identifiable> implements Rep
     }
 
     public static class PersistenceException extends RuntimeException {
-        public PersistenceException(Throwable cause) {
+        PersistenceException(Throwable cause) {
             super(cause);
         }
     }

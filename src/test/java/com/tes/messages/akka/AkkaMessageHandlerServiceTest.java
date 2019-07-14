@@ -1,4 +1,4 @@
-package com.tes.messages;
+package com.tes.messages.akka;
 
 import akka.actor.testkit.typed.javadsl.BehaviorTestKit;
 import akka.actor.testkit.typed.javadsl.TestInbox;
@@ -10,8 +10,12 @@ import com.tes.core.domain.Status;
 import com.tes.db.InMemoryMessageRepository;
 import com.tes.db.InMemoryTemplateRepository;
 import com.tes.db.Repository;
-import com.tes.messages.publisher.MessageEvent;
-import com.tes.messages.publisher.MessageEventAck;
+import com.tes.messages.MessageProcessingException;
+import com.tes.messages.TemplateNotFoundException;
+import com.tes.messages.akka.AkkaMessageHandlerService;
+import com.tes.messages.akka.publisher.Message;
+import com.tes.messages.akka.publisher.MessageEvent;
+import com.tes.messages.akka.publisher.MessageEventAck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,19 +25,19 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class MessageHandlerServiceTest {
+public class AkkaMessageHandlerServiceTest {
 
     private Repository<TemplateSpecification> templates = InMemoryTemplateRepository.INSTANCE;
 
     private Repository<SendRequest> messages = InMemoryMessageRepository.INSTANCE;
 
-    private MessageHandlerServiceImpl handler;
+    private AkkaMessageHandlerService handler;
 
     @BeforeEach
     public void setup() {
         InMemoryTemplateRepository.INSTANCE.drop();
         InMemoryMessageRepository.INSTANCE.drop();
-        handler = new MessageHandlerServiceImpl(templates, messages);
+        handler = new AkkaMessageHandlerService(templates, messages);
     }
 
     @Test
